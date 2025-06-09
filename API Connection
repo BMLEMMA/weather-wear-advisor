@@ -1,0 +1,42 @@
+#using the requests library
+import requests
+import json
+
+
+#the url is the url of the api company that I get from them to connect it to my code.
+url = "http://api.weatherstack.com/current"
+#these parameters are required by the api, so I need to include them in my get statement.
+params = {
+    "query": "London",
+    "access_key": "enter_access_key" #this is the api key that connects me to the api place.
+}
+#this is the main get statement where I include the url and the parameters I defined
+response = requests.get(url, params=params)
+#this entire thing is in a json format, so to see actual results, I don't just print, I have to print the json response instead.
+#print(response.status_code)
+#if the status code I got was 200, it was successful.
+
+#this print statement gets me all of the information I wanted, but it is all put inside a json format that I need to extract.
+#print(response.json())
+#To get each of the data points individually, I would need to define the response.json as the data and extract all of the things I want out of there/
+
+data=response.json() #this is basically putting in all of the things I got from the API into one variable so it's the same thing as the response.json() just inside a variable.
+current_weather=data.get("current", {})
+#print (current_weather) #still in that format, the current weather gets me just the weather information from the main data.
+
+
+temp= current_weather.get("weather_descriptions", [])
+wind_speed=current_weather.get("wind_speed")
+
+#printing the results using f statements.
+print (f"temperature: {temp} degrees celsius")
+print (f"Wind speed: {wind_speed} km/hr")
+
+#these are all the descriptions it will give me:
+descriptions_weather=["Sunny", "Clear", "Partly Cloudy", "Cloudy", "Overcast", "Mist", "Patchy rain possible", "Light rain", "Heavy rain",
+                      "Thunderstorm", "Snow", "Fog", "Drizzle", "Sleet", "Freezing rain", "Windy"]
+                      #this for loop looks at the list and checks of any of them have been printed out.
+
+for i in range (0,len(descriptions_weather)):
+  if (descriptions_weather[i] in temp):
+    print ("the weather today:", descriptions_weather[i])

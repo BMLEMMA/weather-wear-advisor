@@ -1,0 +1,40 @@
+#imports:
+from PIL import Image
+import os
+import glob
+import numpy as np
+from patchify import patchify
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D, Concatenate, Conv2DTranspose, Activation, Input
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+#defining a function to remove files with certain file types (jpg, png, txt...)
+def file_cleaning(file_pattern):
+#defining directory path
+  directory_path = "Directory"
+#joining the directory path and the file type to find the actual path of the file:
+  full_path = os.path.join(directory_path, file_pattern)
+#defining the file to delete inside a variable:
+  files_to_delete = glob.glob(full_path)
+
+#for loop to iterate through files and delete files with certain names:
+  for file_path in files_to_delete:
+          os.remove(file_path)
+#calling the function for two of the most common unwanted files types:
+file_cleaning ('*.jpg.txt')
+file_cleaning ('*.png.txt')
+
+#defining an empty list
+img_list=[]
+#iterating through the files inside the directory:
+for i in os.listdir(directory_path):
+#assigning each file inside the directory to a variable img:
+  img= Image.open(f"directory_path{i}")
+#adding to the img_List:
+  img_list.append(img)
+
+print (img_list)

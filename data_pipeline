@@ -1,0 +1,53 @@
+#updated data pipeline
+
+!pip install patchify "numpy<2"
+
+#imports:
+from PIL import Image
+import os
+import glob
+import numpy as np
+from patchify import patchify
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D, Concatenate, Conv2DTranspose, Activation, Input
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+
+def data_pipeline (file_pattern, directory_path):
+  directory_path = "/content/drive/MyDrive/Projects/img_classifier/bottoms/pants"
+  search_path = os.path.join(directory_path, file_pattern)
+  files_to_delete = glob.glob(search_path)
+
+  if not files_to_delete:
+    print(f"No files found matching the pattern '{file_pattern}' in '{directory_path}'.")
+  else:
+    print(f"Found {len(files_to_delete)} files to delete:")
+    for file_path in files_to_delete:
+        try:
+            os.remove(file_path)
+            print(f"  Deleted: {file_path}")
+        except OSError as e:
+            print(f"  Error deleting {file_path}: {e}")
+    print("\nDeletion process complete.")
+  img_list=[]
+  for i in os.listdir(directory_path):
+    img= Image.open(f"{directory_path}/{i}")
+    img= img.convert('L')
+    img_list.append(img)
+  new_size=(256,256)
+  resized_img = [img.resize(new_size) for img in img_list]
+  for i in range (len (resized_img)):
+    if (resized_img[i].size != (256, 256)):
+      print ("Wrong size")
+    else:
+      print ("Right size")
+  resized_array=np.array(resized_img)
+  print(resized_array.shape)
+  patched_array = patchify(resized_array, (64, 64, 3), step=100)
+  #print(patched_array.shape)
+  return (patched_array)
+data_pipeline ('*.jpg.txt', "/content/drive/MyDrive/Projects/img_classifier/bottoms/pants")

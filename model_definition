@@ -1,0 +1,43 @@
+#U-NET model:
+#the model:
+def encoder (inputs, filters):
+    x= layers.Conv2D(filters, (3,3), activation="relu", padding="same") (inputs)
+    x= layers.Conv2D(filters, (3,3), activation="relu", padding="same") (x)
+    skip=x
+    p= layers.MaxPooling2D((2,2))(x)
+    return skip, p
+inputs=layers.Input((64,64,3))
+s,p=encoder(inputs,64)
+
+def decoder_block(inputs, skip_features, filters):
+    x = Conv2DTranspose(filters, (2, 2), strides=(2, 2), padding='same')(inputs)
+    x = Concatenate()([x, skip_features])
+    x = Conv2D(filters, (3, 3), activation='relu', padding='same')(x)
+    x = Conv2D(filters, (3, 3), activation='relu', padding='same')(x)
+    return x
+
+#main unet model:
+
+def unet_model(input_shape=(64, 64, 3), num_classes=1):
+    inputs = Input(input_shape)
+    s1, p1 = encoder(inputs, 64)
+    s2, p2 = encoder(p1, 128)
+    s3, p3 = encoder(p2, 256)
+    s4, p4 = encoder(p3, 512)
+
+    b = Conv2D(1024, (3, 3), activation='relu', padding='same')(p4)
+    b = Conv2D(1024, (3, 3), activation='relu', padding='same')(b)
+
+    d4 = decoder_block(b, s4, 512)
+    d3 = decoder_block(d4, s3, 256)
+    d2 = decoder_block(d3, s2, 128)
+    d1 = decoder_block(d2, s1, 64)
+
+    outputs = layers.Conv2D(1, (1,1), activation='sigmoid')(d1)
+    model= Model (inputs=inputs, outputs=outputs)
+    model.compile (optimizer='adam',
+                   loss='binary_crossentropy',
+                   metrics=['accuracy'])
+    return model
+
+model = unet_model()
